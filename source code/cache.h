@@ -3,8 +3,18 @@
 #include <math.h>
 #include <climits>
 #include <string>
+#include <vector>
 
 using namespace std;
+
+extern long long cycle = 0;
+extern long long stall_a = 0, stall_b = 0, stall_c = 0;
+
+double log2(double n)
+{
+	// log(n) / log(2) is log2.	log with base 2
+	return log(n) / log(double(2));
+}
 
 struct cache_content
 {
@@ -13,106 +23,77 @@ struct cache_content
 	unsigned int time;	//time stamp for last use
 };
 
-const int K = 1024;
+class Cache{
+	public:
+		int cache_size, block_size, set_size;
+		int offset_bit, index_bit, line, set_n;
+		vector<vector<cache_content>> data;
 
-double log2(double n)
-{
-	// log(n) / log(2) is log2(n).	log with base 2
-	return log(n) / log(double(2));
-}
+		Cache(int cache_size, int block_size, int set_size = 8){
+			this->cache_size = cache_size;
+			this->block_size = block_size;
+			this->set_size = set_size;
 
+			this->offset_bit = (int)log2(block_size);			//2^(offset_bit) bytes in one block
+			this->index_bit = (int)log2((cache_size / block_size) / set_size);
+			this->line = cache_size >> (this->offset_bit);		// cache/2^(offset_bit) is "number of block"
+			this->set_n = this->line / set_size;				//how many sets in cache
 
-double simulate(int cache_size, int block_size, long long address)
-{
-	unsigned int tag, index, set, x;
-	unsigned int count = 0, miss = 0;
+			this->data.resize(set_n);							//initialize cache content
+			for (int i = 0; i < set_n; i++){
+				this->data[i].resize(set_size);
 
-
-	int offset_bit = (int)log2(block_size);		//2^(offset_bit) bytes in one block
-	int index_bit = (int)log2(cache_size / block_size);
-	int line = cache_size >> (offset_bit);		// cache/2^(offset_bit) is "number of block"
-
-	cache_content *cache = new cache_content[line];
-
-	for (int i = 0; i < line; i++)				//instart, every line is empty
-		cache[i].v = false;
-
-	while (fscanf(fp, "%x", &x) != EOF)
-	{
-		count++;								//add time stamp
-
-		index = (x >> offset_bit) & (set_n - 1);		//filter the index bits
-		tag = x >> (index_bit + offset_bit);			//filter the tag bits
-		set = index;
-
-		bool hit_flag = false, empty = false;
-		for (int i = 0; i < set_size; i++){
-			if (cache[set][i].v && cache[set][i].tag == tag){
-				hit_flag = true;				//hit
-				cache[set][i].time = count;
+                for(int j = 0; j < set_size; j++)
+				    this->data[i][j].v = false;
 			}
 		}
+};
 
-		if (hit_flag == false){					//miss
-			miss++;
-			for (int i = 0; i < set_size; i++){
-				if (cache[set][i].v == false){
-					empty = true;				//some idle space for new data
-					cache[set][i].v = true;
-					cache[set][i].tag = tag;
-					cache[set][i].time = count;
-				}
-			}
 
-			if (empty == false){				//there are no idle space
-				int earliest = INT_MAX, LRU = -1;
-				for (int i = 0; i<set_size; i++){				//find LRU block
-					if (cache[set][i].time <= earliest){
-						earliest = cache[set][i].time;
-						LRU = i;
-					}
-				}
+void simulate(Cache& cache, long long address)
+{
+	unsigned int tag, index;
 
-				cache[set][LRU].tag = tag;
-				cache[set][LRU].time = count;
-			}
+	int offset_bit = cache.offset_bit;			//2^(offset_bit) bytes in one block
+	int index_bit = cache.index_bit;
+	int line = cache.line;						// cache/2^(offset_bit) is "number of block"
+	int set_n = cache.set_n;					//how many sets in cache
+
+
+	index = (address >> cache.offset_bit) & (cache.set_n - 1);				//filter the index bits
+	tag = address >> (cache.index_bit + cache.offset_bit);					//filter the tag bits
+
+	bool hit_flag = false, empty = false;
+	for (int i = 0; i < cache.set_size; i++){
+		if (cache.data[index][i].v && cache.data[index][i].tag == tag){
+			hit_flag = true;					//hit
+			cache.data[index][i].time = cycle;
 		}
-
 	}
-	fclose(fp);
 
-        printf("size = %5d bits, ",(32 - index_bit - offset_bit+1)*set_size*set_n);
+	if (hit_flag == false){						//miss
 		
-	for (int i = 0; i < set_n; i++)
-		delete[] cache[i];
+		for (int i = 0; i < cache.set_size; i++){
+			if (cache.data[index][i].v == false){
+				empty = true;					//some idle space for new data
+				cache.data[index][i].v = true;
+				cache.data[index][i].tag = tag;
+				cache.data[index][i].time = cycle;
+			}
+		}
 
-	delete[] cache;
-	return (double)miss / (double)count;
+		if (empty == false){					//there are no idle space
+			int earliest = INT_MAX, LRU = -1;
+			for (int i = 0; i<cache.set_size; i++){				//find LRU block
+				if (cache.data[index][i].time <= earliest){
+					earliest = cache.data[index][i].time;
+					LRU = i;
+				}
+			}
+
+			cache.data[index][LRU].tag = tag;
+			cache.data[index][LRU].time = cycle;
+		}
+	}
+
 }
-
-// void printfile(const char *filename)
-// {
-//     FILE *fp2 = fopen("output.txt", "a+");  //write?
-//     printf("File %s processing...\n",filename);
-//     fprintf(fp2,"File %s processing...\n",filename);
-//     for (unsigned int i = 1; i <= 32; i = i << 1){
-// 		//cout << i << "-way:" << endl;
-//         printf("cache size: %2dK\n",i);
-//         for (unsigned int n = 1; n <= 8; n = n << 1){
-//             printf("%2d-way, ",n);
-// 			//cout << "cache size: " << i << " ";
-// 			float result = simulate(i * K, 64, n,filename) * 100;
-// 			printf("miss rate: %2.6f%%\n", result);
-// 			fprintf(fp2,"%d %f\n",n, result);
-// 			//cout << "miss rate" << simulate(i * K, 64, n) << endl;
-// 		}
-// 		cout << endl;
-// 	}
-// }
-
-// int main()
-// {
-//     printfile("LU.txt");
-//     printfile("RADIX.txt");
-// 	return 0;
-// }
