@@ -5,9 +5,9 @@
 using namespace std;
 
 vector<cache_content> cache_a(16);      //2^4 blocks
-cache_content cache_b(16);      //2^4 blocks
-cache_content cache_c_L1 (8);   //2^3 blocks
-cache_content cache_c_L2 (32);  //2^5 blocks
+cache_content cache_b(16);              //2^4 blocks
+cache_content cache_c_L1 (8);           //2^3 blocks
+cache_content cache_c_L2 (32);          //2^5 blocks
 
 vector<vector<int>> A, B, C;
 
@@ -19,8 +19,19 @@ void mul(long long& rd, long long rs, long long rt){
     rd = rs * rt;
 }
 
-void lw_a(long long& rt, long long address){
-    
+void lw_a(long long& rt, long long address, int i, int j, int k){
+    int offset_bit = 5;
+    int index_bit = 4;
+    int tag_bit = 32 - offset_bit - index_bit;
+
+    index = (address >> offset_bit) % 16;
+    tag = address >> (offset_bit + index_bit);
+
+    if(cache_a[index].v == true){
+        if(cache_a[index].tag == tag){
+            rt = cache_a[index].
+        }
+    }
 }
 
 void sw(long long rt, long long address){
@@ -67,7 +78,7 @@ int main(){
         for(int j=0; j<p; j++)
             C[i][j] = 0;
 
-    cache_initial(cache_a);     //cache initialize
+    cache_initial(cache_a);      //cache initialize
     cache_initial(cache_b);
     cache_initial(cache_c_L1);
     cache_initial(cache_c_L2);
