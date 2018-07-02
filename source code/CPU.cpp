@@ -4,8 +4,6 @@
 
 using namespace std;
 
-//long long cycle = 0;
-//long long stall_a = 0, stall_b = 0, stall_c = 0;
 
 
 Cache cache_a(512, 32);
@@ -131,6 +129,10 @@ int main(){
     }
     cycle++;
     cout <<"cycle=" <<cycle<<endl;
+
+	for (auto i : C)
+		for (auto j : i)
+			cout << j;
     return 0;
 }
 
