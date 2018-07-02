@@ -11,7 +11,7 @@ Cache cache_b(512, 32);
 Cache cache_c_L1(128, 16);
 Cache cache_c_L2(4096, 128);
 
-vector<vector<int>> A, B, C;
+vector<vector<long long> > A, B, C;
 
 void addu(long long& rd, long long rs, long long rt){
     rd = rs + rt;
@@ -23,7 +23,7 @@ void mul(long long& rd, long long rs, long long rt){
 
 void lw_a(long long& rt, long long address, int i, int j, int k, char matrix){
     simulate(cache_a, address);
-    
+    cout << "lw_a stall_a = "<<stall_a<<endl;
     if(matrix == 'A')
         rt = A[i][k];
     else if(matrix == 'B')
@@ -42,7 +42,7 @@ int main(){
 
     long long r[27] = {0};
     cin >> hex >> r[24] >> r[25] >> r[26];  //A B C[] base
-    cin >> r[21] >> r[22] >> r[23];         //m, n, p
+    cin >> dec >> r[21] >> r[22] >> r[23];         //m, n, p
                                             
     long long& a_base = r[24], b_base = r[25], c_base = r[26];
     long long& m = r[21], n = r[22], p = r[23];
@@ -61,16 +61,33 @@ int main(){
         C[i].resize(p);
 
     for(int i=0; i<m; i++)       //matrix initialize
-        for(int j=0; j<n; j++)
-            cin >> A[i][j];
+        for(int j=0; j<n; j++){
+            //scanf("%d",&A[i][j]);
+            cin >> A[i][j];  
+        }
+    for (auto i : A){
+        for (auto j : i)
+            cout << j << " ";
+        cout<<endl;
+    }   
     for(int i=0; i<n; i++)
-        for(int j=0; j<p; j++)
+        for(int j=0; j<p; j++){
+            int tmp;
+            // scanf("%d",&B[i][j]);
+            // cin >> tmp;
             cin >> B[i][j];
+            // cout << "B["<<i<<"]["<<j<<"] = "<<B[i][j]<<endl;
+            //cout << tmp <<" "<<endl;
+        }
     for(int i=0; i<m; i++)
         for(int j=0; j<p; j++)
             C[i][j] = 0;
 
-    
+    for (auto i : B){
+        for (auto j : i)
+            cout << j << " ";
+        cout<<endl;
+    }   
     //matrix multiplication
     r[1] = 4;                               // $1 = const 4;
     cycle ++;
@@ -129,10 +146,12 @@ int main(){
     }
     cycle++;
     cout <<"cycle=" <<cycle<<endl;
-
-	for (auto i : C)
+    cout <<"stalla = "<<stall_a<<endl;
+	for (auto i : C){
 		for (auto j : i)
-			cout << j;
+			cout << j << " ";
+        cout<<endl;
+    }
     return 0;
 }
 

@@ -27,7 +27,7 @@ class Cache{
 	public:
 		int cache_size, block_size, set_size;
 		int offset_bit, index_bit, line, set_n;
-		vector<vector<cache_content>> data;
+		vector<vector<cache_content> > data;
 
 		Cache(int cache_size, int block_size, int set_size = 8){
 			this->cache_size = cache_size;
@@ -52,6 +52,7 @@ class Cache{
 
 void simulate(Cache& cache, long long address)
 {
+	cout << hex << address <<dec << endl;
 	unsigned int tag, index;
 
 	int offset_bit = cache.offset_bit;			//2^(offset_bit) bytes in one block
@@ -72,8 +73,8 @@ void simulate(Cache& cache, long long address)
 			hit_flag = true;					//hit
 			cache.data[index][i].time = cycle;
 
-			stall_a += 2 * 8;					//access 8 words in cache(2 stall per access)
-			stall_a += 1 * 8;					//send 8 words to Processor
+			stall_a += 2 ;					//access 8 words in cache(2 stall per access)
+			stall_a += 1 ;					//send 8 words to Processor
 		}
 	}
 
