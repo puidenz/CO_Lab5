@@ -7,8 +7,8 @@
 
 using namespace std;
 
-extern long long cycle = 0;
-extern long long stall_a = 0, stall_b = 0, stall_c = 0;
+ long long cycle = 0;
+ long long stall_a = 0, stall_b = 0, stall_c = 0;
 
 double log2(double n)
 {

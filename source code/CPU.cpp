@@ -4,8 +4,8 @@
 
 using namespace std;
 
-long long cycle = 0;
-long long stall_a = 0, stall_b = 0, stall_c = 0;
+//long long cycle = 0;
+//long long stall_a = 0, stall_b = 0, stall_c = 0;
 
 
 Cache cache_a(512, 32);
@@ -76,13 +76,15 @@ int main(){
     //matrix multiplication
     r[1] = 4;                               // $1 = const 4;
     cycle ++;
+    r[3] = 0;
+    cycle++;
 
     for(i = 0; i < m; i++){
         cycle += 2;                         //for slt & beq
-        
+        cycle ++; //for addi $4, $0,0
         for(j = 0; j < n; j++){
             cycle += 2;
-
+            cycle ++; //addi $5, $0, 0
             for(k = 0; k < p; k++){
                 cycle +=2;
 
@@ -111,13 +113,24 @@ int main(){
                 cycle += 18;                //for 18 instructions above 
 
                 cycle += 2;
+                if(k==p-1){
+                    cycle+=2;
+                }
             }
 
             cycle += 2;
+            if(j==n-1){
+                cycle +=2;
+            }
         }
 
-        cycle += 2;                         //for addi & j
+        cycle += 2;
+        if(i==m-1){
+            cycle +=2;
+        }                         //for addi & j
     }
+    cycle++;
+    cout <<"cycle=" <<cycle<<endl;
     return 0;
 }
 
