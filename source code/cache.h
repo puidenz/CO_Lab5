@@ -66,15 +66,15 @@ void simulate(Cache& cache, long long address)
 
 	bool hit_flag = false, empty = false;
 	
-	stall_a++;									//send the address to cache
+	stall_a += 1;									//send the address to cache
 
 	for (int i = 0; i < cache.set_size; i++){
 		if (cache.data[index][i].v && cache.data[index][i].tag == tag){
 			hit_flag = true;					//hit
 			cache.data[index][i].time = cycle;
 
-			stall_a += 2 ;					//access 8 words in cache(2 stall per access)
-			stall_a += 1 ;					//send 8 words to Processor
+			stall_a += 2;					//access 1 words in cache(2 stall per access)
+			stall_a += 1;					//send 1 words to Processor
 		}
 	}
 
@@ -84,8 +84,8 @@ void simulate(Cache& cache, long long address)
 		stall_a += 100 * 8;						//access 8 words in memory
 		stall_a += 1 * 8;						//send 8 words to cache
 
-		stall_a += 2 * 8;						//access 8 words in cache(2 stall per access)
-		stall_a += 1 * 8;						//send 8 words to Processor
+		stall_a += 2;						//access 1 words in cache(2 stall per access)
+		stall_a += 1;						//send 1 words to Processor
 
 		for (int i = 0; i < cache.set_size; i++){
 			if (cache.data[index][i].v == false){
