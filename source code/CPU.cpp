@@ -11,7 +11,7 @@ Cache cache_b(512, 32);
 Cache cache_c_L1(128, 16);
 Cache cache_c_L2(4096, 128);
 
-vector<vector<int>> A, B, C;
+vector<vector<long long>> A, B, C;
 
 void addu(long long& rd, long long rs, long long rt){
     rd = rs + rt;
@@ -41,8 +41,8 @@ void sw(long long rt, int i, int j){
 int main(){
 
     long long r[27] = {0};
-    cin >> hex >> r[24] >> r[25] >> r[26];  //A B C[] base
-    cin >> r[21] >> r[22] >> r[23];         //m, n, p
+    cin >> hex >> r[24] >> r[25] >> r[26];			//A B C[] base
+    cin >> dec >> r[21] >> r[22] >> r[23];         //m, n, p
                                             
     long long& a_base = r[24], b_base = r[25], c_base = r[26];
     long long& m = r[21], n = r[22], p = r[23];
@@ -123,7 +123,7 @@ int main(){
                 addu(r[20], r[10], r[19]);
                 sw(r[20], i, j);
 
-				cout << endl;
+				//cout << endl;
 
                 cycle += 18;                //for 18 instructions above 
 
@@ -146,7 +146,7 @@ int main(){
     }
     cycle++;
     cout <<"cycle=" <<cycle<<endl;
-
+	cout << "stall_a=" << stall_a << endl;
 	for (auto i : C){
 		for (auto j : i)
 			cout << j <<" ";
