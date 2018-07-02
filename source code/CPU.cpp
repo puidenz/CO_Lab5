@@ -70,7 +70,11 @@ int main(){
         for(int j=0; j<p; j++)
             C[i][j] = 0;
 
-    
+		for (auto i : B){
+			for (auto j : i)
+				cout << j << " ";
+				cout << endl;
+		}
     //matrix multiplication
     r[1] = 4;                               // $1 = const 4;
     cycle ++;
@@ -86,27 +90,40 @@ int main(){
             for(k = 0; k < p; k++){
                 cycle +=2;
 
+				//cout << i << " " << j << " " << k << endl;
+
                 mul(r[7], r[3], r[23]);
                 addu(r[8], r[7], r[4]);
                 mul(r[8], r[8], r[1]);
                 addu(r[9], r[8], r[26]);    //r[9] = 4(i*p+j) + C[]base
 
                 lw_a(r[10], r[9], i, j, k, 'C');
+
+				//cout << "C[i][j]: " << r[10] << "¡@";
+
                 mul(r[11], r[3], r[22]);
                 addu(r[12], r[11], r[5]);
                 mul(r[12], r[12], r[1]);
                 addu(r[13], r[12], r[24]);  //r[13] = 4(i*n+k) + A[]base
-
+				
                 lw_a(r[14], r[13], i, j, k, 'A');
-                mul(r[15], r[5], r[23]);
+                
+				//cout << "A[i][k]: " << r[14] << "¡@";
+
+				mul(r[15], r[5], r[23]);
                 addu(r[16], r[15], r[4]);
                 mul(r[16], r[16], r[1]);
                 addu(r[17], r[16], r[25]);  //r[17] = 4(k*p+j) + B[]base
 
                 lw_a(r[18], r[17], i, j, k, 'B');
-                mul(r[19], r[18], r[14]);
+                
+				//cout << "B[k][j]: " << r[18] << "¡@";
+
+				mul(r[19], r[18], r[14]);
                 addu(r[20], r[10], r[19]);
                 sw(r[20], i, j);
+
+				cout << endl;
 
                 cycle += 18;                //for 18 instructions above 
 
@@ -130,9 +147,14 @@ int main(){
     cycle++;
     cout <<"cycle=" <<cycle<<endl;
 
-	for (auto i : C)
+	for (auto i : C){
 		for (auto j : i)
-			cout << j;
+			cout << j <<" ";
+		cout << endl;
+	}
+
+	system("pause");
+
     return 0;
 }
 
